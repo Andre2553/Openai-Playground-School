@@ -16,7 +16,7 @@ export function Header() {
 
   return (
     <Popover as="header" className="relative">
-      <div className=" bg-white px-4 py-4 border-b-2 border-b-[#d0d4dc]">
+      <div className=" bg-white px-4 py-4 border-b border-b-[#d0d4dc]">
         <nav
           className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6"
           aria-label="Global"
@@ -33,14 +33,14 @@ export function Header() {
                 />
 
               </Link>
-              <div className="-mr-2 flex items-center md:hidden">
+              <div className="-mr-2 flex items-center md:hidden ">
                 <Popover.Button className="bg-gray-300 rounded-md p-2 inline-flex items-center justify-center text-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white">
                   <span className="sr-only">Open main menu</span>
                   <MenuIcon className="h-6 w-6" aria-hidden="true" />
                 </Popover.Button>
               </div>
             </div>
-            <div className="hidden space-x-8 md:flex md:ml-10">
+            <div className="hidden space-x-8 md:flex  ml-auto">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -50,7 +50,7 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
-              <Link className="font-inter font-medium bg-[#6469ff] text-white px-2 py-2  rounded-md hover:bg-[#494dc0]" href="/community">Community</Link>
+              <Link className="font-inter font-medium bg-[#6469ff] text-white px-2 py-2  rounded-md hover:bg-[#494dc0]" href="/">Community</Link>
             </div>
           </div>
 
@@ -96,7 +96,7 @@ export function Header() {
                     {item.name}
                   </Link>
                 ))}
-                <Link className=" inline-block ml-2 mt-2 font-inter font-medium bg-[#6469ff] text-white px-3 py-2  rounded-md hover:bg-[#494dc0]" href="/community">Community</Link>
+                <Link className=" inline-block ml-2 mt-2 font-inter font-medium bg-[#6469ff] text-white px-3 py-2  rounded-md hover:bg-[#494dc0]" href="/">Community</Link>
   
               </div>
 
