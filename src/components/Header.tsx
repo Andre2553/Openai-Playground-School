@@ -7,9 +7,9 @@ import Image from "next/image";
 import logo from "../assets/logo.svg";
 
 const navigation = [
-  { name: 'Create Image', href: '/create-image' },
+  { name: 'Study Notes', href: '/study-notes' },
   { name: 'Summarize', href: '/summarize' },
-  { name: 'Community', href: '/community' },
+  { name: 'Essay Outline', href: '/essay-outline' },
 ]
 
 export function Header() {
@@ -42,14 +42,15 @@ export function Header() {
             </div>
             <div className="hidden space-x-8 md:flex md:ml-10">
               {navigation.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
-                  className="text-base font-medium text-gray-700 hover:text-gray-500"
+                  className="text-base font-medium text-gray-700 hover:text-gray-500  py-2"
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
+              <Link className="font-inter font-medium bg-[#6469ff] text-white px-2 py-2  rounded-md hover:bg-[#494dc0]" href="/community">Community</Link>
             </div>
           </div>
 
@@ -85,7 +86,7 @@ export function Header() {
               </div>
             </div>
             <div className="pt-5 pb-6">
-              <div className="px-2 space-y-1">
+              <div className="px-2">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
@@ -95,6 +96,8 @@ export function Header() {
                     {item.name}
                   </Link>
                 ))}
+                <Link className=" inline-block ml-2 mt-2 font-inter font-medium bg-[#6469ff] text-white px-3 py-2  rounded-md hover:bg-[#494dc0]" href="/community">Community</Link>
+  
               </div>
 
 

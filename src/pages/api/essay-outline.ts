@@ -13,7 +13,7 @@ export default async function handler(
 
   const { prompt } = req.body;
 
-  const response = await openai.createImage({
+  const response = await openai.createCompletion({
     model: "text-davinci-003",
     prompt,
     temperature: 0.3,
