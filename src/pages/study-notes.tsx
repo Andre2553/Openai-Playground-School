@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useState } from "react";
 import { CreateCompletionResponse } from "openai";
+import { useRouter } from "next/router";
 
 const StudyNotesFormSchema = z.object({
   name: z.string().min(1, "* Type your name").max(100),
@@ -17,17 +18,20 @@ export default function StudyNotes() {
   const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm({
     resolver: zodResolver(StudyNotesFormSchema),
   })
-
+  const router = useRouter()
   const [response, SetResponse] = useState("");
 
   async function handleSendtoCommunity(data: any) {
-    const { name, topic } = data as FormData;
     try {
+      const { name, topic } = data as FormData;
       const response = await axios.post("/api/post-data", {
         name,
         topic,
+        category: "study-notes",
+      }).then((res) => {
+        console.log(response);
+        router.push('/')
       });
-      console.log(response);
     }
     catch (error) {
       console.log(error);

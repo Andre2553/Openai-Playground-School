@@ -12,16 +12,16 @@ export default async function handler(
       res.status(405).end('Method not allowed');
    }
 
-   const { prompt, category, response, userName } = req.body;
+   const { topic, category, response, name } = req.body;
 
    try{
 
       const post = await prisma.openAIPosts.create({
          data: {
-            prompt,
+            prompt: topic,
             category,
             response,
-            userName,
+            userName: name,
          }
       });
       

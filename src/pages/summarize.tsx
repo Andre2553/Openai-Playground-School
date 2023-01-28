@@ -22,7 +22,7 @@ export default function Summarize() {
           </div>
           <div className="mb-4 mt-8">
             <label className="block text-left text-gray-100 text-lg ml-2 mb-4" htmlFor="username">
-              Write about the topic you want to study
+              Write about the topic you want to explain
             </label>
             <ul className="text-left mb-4">
               <li> - Summarize this for a second-grade student: [Your Text]</li>
