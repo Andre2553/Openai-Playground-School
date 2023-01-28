@@ -10,7 +10,7 @@ export default function Summarize() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className='max-w-7xl mx-auto p-20 text-center'>
-        <h1 className='text-6xl text-gray-800 font-bold '>Summarise for Kids</h1>
+        <h1 className='text-5xl text-gray-800 font-bold '>Summarise for Kids</h1>
         <h3 className="text-2xl mt-5 text-gray-600">Hard to explain? Sumarise it like you would do for a kid</h3>
         <form className="mt-9 bnpm run 
         bg-gray-800 shadow-lg rounded-2xl px-32 py-9 mb-4  w-3/4 ml-auto mr-auto " action="">
