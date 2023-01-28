@@ -1,6 +1,69 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import { CreateCompletionResponse } from "openai";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const SummariseFormSchema = z.object({
+  name: z.string().min(1, "* Type your name").max(100),
+  topic: z.string().min(1, "* Write about the topic that you would like to learn").max(1000, "* Max length is 1000 characters").startsWith("Summarise this for"),
+})
+
+type FormData = z.input<typeof SummariseFormSchema>;
 
 export default function Summarize() {
+  const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm({
+    resolver: zodResolver(SummariseFormSchema),
+  })
+  const router = useRouter()
+  const [response, SetResponse] = useState("");
+  const [isSendingtoCommunity, SetIsSendingtoCommunity] = useState(false);
+
+  async function handleSendtoCommunity(data: any) {
+    try {
+      SetIsSendingtoCommunity(true);
+      const { name, topic } = data as FormData;
+      const response = await axios.post("/api/post-data", {
+        name,
+        topic,
+        category: "summarize",
+      }).then((_) => {
+        SetIsSendingtoCommunity(false);
+        console.log(response);
+        router.push('/')
+      });
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function handleOnSubmitForm(data: any) {
+    const { topic } = data as FormData;
+    try {
+
+      const response = await axios.post("/api/create-study-notes", {
+        prompt: topic,
+      });
+      console.log(response);
+      const data: CreateCompletionResponse = response.data;
+      if (data.choices[0].text) {
+        SetResponse(data.choices[0].text);
+      } else {
+        SetResponse("Sorry, we couldn't generate your study notes. Please try again.")
+      }
+
+    } catch (error) {
+      console.log(error);
+
+      SetResponse("Sorry, we couldn't generate your study notes. Please try again.")
+
+    }
+
+  }
   return (
     <>
       <Head>
@@ -12,29 +75,43 @@ export default function Summarize() {
       <main className='max-w-7xl mx-auto p-20 text-center'>
         <h1 className='text-5xl text-gray-800 font-bold '>Summarise for Kids</h1>
         <h3 className="text-2xl mt-5 text-gray-600">Hard to explain? Sumarise it like you would do for a kid</h3>
-        <form className="mt-9 bnpm run 
-        bg-gray-800 shadow-lg rounded-2xl px-32 py-9 mb-4  w-3/4 ml-auto mr-auto " action="">
-          <div className="mb-4 mt-4">
-            <label className="block text-left text-gray-100  text-lg ml-2 mb-4" htmlFor="username">
-              Your name
-            </label>
-            <input className="block  text-sm shadow appearance-none border rounded w-2/5 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="John" />
-          </div>
-          <div className="mb-4 mt-8">
-            <label className="block text-left text-gray-100 text-lg ml-2 mb-4" htmlFor="username">
-              Write about the topic you want to explain
-            </label>
-            <ul className="text-left mb-4">
-              <li> - Summarize this for a second-grade student: [Your Text]</li>
+        <section className="mt-9 
+        bg-gray-800 shadow-lg rounded-2xl  py-9 mb-4  w-3/4 ml-auto mr-auto ">
 
-            </ul>
-            <textarea className="shadow text-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username"  />
-          </div>
-          <button className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8" type="button">
-            Generate
-          </button>
-        </form>
+          <form className="px-32" onSubmit={handleSubmit(handleOnSubmitForm)}>
+            <div className="mb-4 mt-4">
+              <label className="block text-left text-gray-100  text-lg ml-2 mb-4" htmlFor="username">
+                Your name
+              </label>
+              <input className="block  text-sm shadow appearance-none border rounded w-2/5 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="John" {...register("name")} />
+              {errors.name && <p className="text-red-500 text-sm text-left mt-3">{errors!.name!.message + ""}</p>}
+            </div>
+            <div className="mb-4 mt-8">
+              <label className="block text-left text-gray-100 text-lg ml-2 mb-4" htmlFor="prompt">
+                Write about the topic you want to explain
+              </label>
+              <ul className="text-left mb-4">
+                <li className="whitespace-pre-wrap">Summarize this for a second-grade student: {"\n\n"}Jupiter is the fifth planet from the Sun and the largest in the Solar System. It is a gas giant with a mass one-thousandth that of the Sun, but two-and-a-half times that of all the other planets in the Solar System combined. Jupiter is one of the brightest objects visible to the naked eye in the night sky, and has been known to ancient civilizations since before recorded history. It is named after the Roman god Jupiter.[19] When viewed from Earth, Jupiter can be bright enough for its reflected light to cast visible shadows,[20] and is on average the third-brightest natural object in the night sky after the Moon and Venus.</li>
 
+              </ul>
+              <textarea className="shadow text-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="prompt" {...register("topic")} />
+              {errors.topic && <p className="text-red-500 text-sm text-left mt-3"> {errors!.topic!.message + ""}</p>}
+            </div>
+            <button disabled={isSubmitting} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8" type="submit">
+              Generate
+            </button>
+            {response && (
+            <>
+              <div className="bg-gray-900 py-3 px-4 mt-8 rounded-2xl w-4/5 mx-auto">
+
+                <p className="text-left text-gray-100 text-lg whitespace-pre-wrap">{response}</p>
+                <button disabled={isSendingtoCommunity} onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">{ isSendingtoCommunity ? "Sending ..." : "Send the results to the Community"}</button>
+              </div>
+            </>
+          )}
+          </form>
+
+        </section>
       </main>
     </>
   )

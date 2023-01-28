@@ -9,7 +9,7 @@ import { z } from "zod";
 
 const EssayOutlineFormSchema = z.object({
   name: z.string().min(1, "* Type your name").max(100),
-  topic: z.string().min(1, "* Write about the topic that you would like to learn").max(250, "* Max length is 250 characters"),
+  topic: z.string().min(1, "* Write about the topic that you would like to learn").max(250, "* Max length is 250 characters").startsWith("Create an outline for an essay"),
 })
 
 type FormData = z.input<typeof EssayOutlineFormSchema>;
@@ -20,15 +20,19 @@ export default function EssayOutline() {
   })
 
   const [response, SetResponse] = useState("");
+  const [isSendingtoCommunity, SetIsSendingtoCommunity] = useState(false);
+
   const router = useRouter()
   async function handleSendtoCommunity(data: any) {
     try {
+      SetIsSendingtoCommunity(true);
       const { name, topic } = data as FormData;
       const response = await axios.post("/api/post-data", {
         name,
         topic,
         category: "essay-outline",
-      }).then((res) => {
+      }).then((_) => {
+        SetIsSendingtoCommunity(false);
         console.log(response);
         router.push('/')
       });
@@ -85,17 +89,17 @@ export default function EssayOutline() {
               {errors.name && <p className="text-red-500 text-sm text-left mt-3">{errors!.name!.message + ""}</p>}
             </div>
             <div className="mb-4 mt-8">
-              <label className="block text-left text-gray-100 text-lg ml-2 mb-4" htmlFor="username">
+              <label className="block text-left text-gray-100 text-lg ml-2 mb-4" htmlFor="prompt">
                 Write about the topic you want to write the essay about
               </label>
               <ul className="text-left mb-4">
                 <li> - Create an outline for an essay about Nikola Tesla and his contributions to technology</li>
               </ul>
-              <input className="shadow text-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text"  {...register("topic")}/>
+              <input className="shadow text-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="prompt" type="text"  {...register("topic")}/>
               {errors.topic && <p className="text-red-500 text-sm text-left mt-3"> {errors!.topic!.message + ""}</p>}
             
             </div>
-            <button disabled={isSubmitting} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8" type="button">
+            <button disabled={isSubmitting} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8" type="submit">
               Generate
             </button>
           </form>
@@ -104,7 +108,7 @@ export default function EssayOutline() {
               <div className="bg-gray-900 py-3 px-4 mt-8 rounded-2xl w-4/5 mx-auto">
 
                 <p className="text-left text-gray-100 text-lg whitespace-pre-wrap">{response}</p>
-                <button onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">Send the results to the Community</button>
+                <button disabled={isSendingtoCommunity} onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">{ isSendingtoCommunity ? "Sending ..." : "Send the results to the Community"}</button>
               </div>
             </>
           )}

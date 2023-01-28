@@ -20,15 +20,19 @@ export default function StudyNotes() {
   })
   const router = useRouter()
   const [response, SetResponse] = useState("");
+  const [isSendingtoCommunity, SetIsSendingtoCommunity] = useState(false);
+
 
   async function handleSendtoCommunity(data: any) {
     try {
+      SetIsSendingtoCommunity(true);
       const { name, topic } = data as FormData;
       const response = await axios.post("/api/post-data", {
         name,
         topic,
         category: "study-notes",
-      }).then((res) => {
+      }).then((_) => {
+        SetIsSendingtoCommunity(false);
         console.log(response);
         router.push('/')
       });
@@ -104,8 +108,8 @@ export default function StudyNotes() {
               <div className="bg-gray-900 py-3 px-4 mt-8 rounded-2xl w-4/5 mx-auto">
 
                 <p className="text-left text-gray-100 text-lg whitespace-pre-wrap">{response}</p>
-                <button onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">Send the results to the Community</button>
-              </div>
+                <button disabled={isSendingtoCommunity} onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">{ isSendingtoCommunity ? "Sending ..." : "Send the results to the Community"}</button>
+             </div>
             </>
           )}
 

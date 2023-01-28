@@ -15,10 +15,10 @@ const navigation = [
 export function Header() {
 
   return (
-    <Popover as="header" className="relative">
-      <div className=" bg-white px-4 py-4 border-b border-b-[#d0d4dc]">
+    <Popover as="header" className="sticky top-0">
+      <div className=" bg-white px-4 py-4 border-b border-b-[#d0d4dc] ">
         <nav
-          className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6"
+          className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6"
           aria-label="Global"
         >
           <div className="flex items-center flex-1">
