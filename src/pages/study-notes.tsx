@@ -11,6 +11,11 @@ const StudyNotesFormSchema = z.object({
   name: z.string().min(1, "* Type your name").max(100),
   topic: z.string().min(1, "* Write about the topic that you would like to learn").max(250, "* Max length is 250 characters"),
 })
+interface Response {
+  topic: string;
+  name: string;
+  data: string;
+}
 
 type FormData = z.input<typeof StudyNotesFormSchema>;
 
@@ -19,21 +24,21 @@ export default function StudyNotes() {
     resolver: zodResolver(StudyNotesFormSchema),
   })
   const router = useRouter()
-  const [response, SetResponse] = useState("");
+  const [response, SetResponse] = useState<Response | null>(null);
   const [isSendingtoCommunity, SetIsSendingtoCommunity] = useState(false);
 
 
   async function handleSendtoCommunity(data: any) {
     try {
       SetIsSendingtoCommunity(true);
-      const { name, topic } = data as FormData;
-      const response = await axios.post("/api/post-data", {
-        name,
-        topic,
+      
+      const responsePost = await axios.post("/api/post-data", {
+        name: response?.name,
+        topic: response?.topic,
         category: "study-notes",
+        response: response?.data,
       }).then((_) => {
         SetIsSendingtoCommunity(false);
-        console.log(response);
         router.push('/')
       });
     }
@@ -41,9 +46,9 @@ export default function StudyNotes() {
       console.log(error);
     }
   }
-  
+
   async function handleOnSubmitForm(data: any) {
-    const { topic } = data as FormData;
+    const { topic, name } = data as FormData;
     try {
 
       const response = await axios.post("/api/create-study-notes", {
@@ -52,15 +57,27 @@ export default function StudyNotes() {
       console.log(response);
       const data: CreateCompletionResponse = response.data;
       if (data.choices[0].text) {
-        SetResponse(data.choices[0].text);
+        SetResponse({
+          topic: topic,
+          name: name,
+          data: data.choices[0].text
+        });
       } else {
-        SetResponse("Sorry, we couldn't generate your study notes. Please try again.")
+        SetResponse({
+          topic: topic,
+          name: name,
+          data: "Sorry, we couldn't generate your study notes. Please try again."
+        })
       }
 
     } catch (error) {
       console.log(error);
 
-      SetResponse("Sorry, we couldn't generate your study notes. Please try again.")
+      SetResponse({
+        topic: topic,
+        name: name,
+        data: "Sorry, we couldn't generate your study notes. Please try again."
+      })
 
     }
 
@@ -107,9 +124,9 @@ export default function StudyNotes() {
             <>
               <div className="bg-gray-900 py-3 px-4 mt-8 rounded-2xl w-4/5 mx-auto">
 
-                <p className="text-left text-gray-100 text-lg whitespace-pre-wrap">{response}</p>
-                <button disabled={isSendingtoCommunity} onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">{ isSendingtoCommunity ? "Sending ..." : "Send the results to the Community"}</button>
-             </div>
+                <p className="text-left text-gray-100 text-lg whitespace-pre-wrap">{response.data}</p>
+                <button disabled={isSendingtoCommunity} onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">{isSendingtoCommunity ? "Sending ..." : "Send the results to the Community"}</button>
+              </div>
             </>
           )}
 
