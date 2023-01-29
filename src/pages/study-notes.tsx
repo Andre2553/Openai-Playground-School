@@ -6,16 +6,13 @@ import axios from "axios";
 import { useState } from "react";
 import { CreateCompletionResponse } from "openai";
 import { useRouter } from "next/router";
+import { ToMongo } from "@/@types/ToMongo";
 
 const StudyNotesFormSchema = z.object({
   name: z.string().min(1, "* Type your name").max(100),
   topic: z.string().min(1, "* Write about the topic that you would like to learn").max(250, "* Max length is 250 characters"),
 })
-interface Response {
-  topic: string;
-  name: string;
-  data: string;
-}
+
 
 type FormData = z.input<typeof StudyNotesFormSchema>;
 
@@ -24,23 +21,22 @@ export default function StudyNotes() {
     resolver: zodResolver(StudyNotesFormSchema),
   })
   const router = useRouter()
-  const [response, SetResponse] = useState<Response | null>(null);
+  const [response, SetResponse] = useState<ToMongo | null>(null);
   const [isSendingtoCommunity, SetIsSendingtoCommunity] = useState(false);
 
 
   async function handleSendtoCommunity(data: any) {
     try {
       SetIsSendingtoCommunity(true);
-      
-      const responsePost = await axios.post("/api/post-data", {
+
+      await axios.post("/api/post-data", {
         name: response?.name,
         topic: response?.topic,
-        category: "study-notes",
+        category: "Study Notes",
         response: response?.data,
-      }).then((_) => {
-        SetIsSendingtoCommunity(false);
-        router.push('/')
-      });
+      })
+      router.push('/')
+
     }
     catch (error) {
       console.log(error);
@@ -116,16 +112,16 @@ export default function StudyNotes() {
               <input className="shadow text-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="prompt" type="text" {...register("topic")} />
               {errors.topic && <p className="text-red-500 text-sm text-left mt-3"> {errors!.topic!.message + ""}</p>}
             </div>
-            <button type="submit" disabled={isSubmitting} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8" >
-              Generate
+            <button type="submit" disabled={isSubmitting} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8 disabled:bg-[#9c9dc5]" >
+              {isSubmitting ? "Loading ..." : "Generate"}
             </button>
           </form>
-          {response && (
+          {response?.data && (
             <>
               <div className="bg-gray-900 py-3 px-4 mt-8 rounded-2xl w-4/5 mx-auto">
 
                 <p className="text-left text-gray-100 text-lg whitespace-pre-wrap">{response.data}</p>
-                <button disabled={isSendingtoCommunity} onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">{isSendingtoCommunity ? "Sending ..." : "Send the results to the Community"}</button>
+                <button disabled={isSendingtoCommunity} onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8 disabled:bg-[#9c9dc5]">{isSendingtoCommunity ? "Sending ..." : "Send the results to the Community"}</button>
               </div>
             </>
           )}

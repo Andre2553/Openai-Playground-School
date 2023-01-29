@@ -1,3 +1,4 @@
+import { ToMongo } from "@/@types/ToMongo";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import Head from "next/head";
@@ -19,31 +20,30 @@ export default function EssayOutline() {
     resolver: zodResolver(EssayOutlineFormSchema),
   })
 
-  const [response, SetResponse] = useState("");
+  const [response, SetResponse] = useState<ToMongo | null>(null);
   const [isSendingtoCommunity, SetIsSendingtoCommunity] = useState(false);
 
   const router = useRouter()
   async function handleSendtoCommunity(data: any) {
     try {
       SetIsSendingtoCommunity(true);
-      const { name, topic } = data as FormData;
-      const response = await axios.post("/api/post-data", {
-        name,
-        topic,
-        category: "essay-outline",
-      }).then((_) => {
-        SetIsSendingtoCommunity(false);
-        console.log(response);
-        router.push('/')
-      });
+
+      await axios.post("/api/post-data", {
+        name: response?.name,
+        topic: response?.topic,
+        category: "Essay Outline",
+        response: response?.data,
+      })
+      router.push('/')
+
     }
     catch (error) {
       console.log(error);
     }
   }
-  
+
   async function handleOnSubmitForm(data: any) {
-    const { topic } = data as FormData;
+    const { topic, name } = data as FormData;
     try {
 
       const response = await axios.post("/api/essay-outline", {
@@ -52,15 +52,27 @@ export default function EssayOutline() {
       console.log(response);
       const data: CreateCompletionResponse = response.data;
       if (data.choices[0].text) {
-        SetResponse(data.choices[0].text);
+        SetResponse({
+          topic: topic,
+          name: name,
+          data: data.choices[0].text
+        });
       } else {
-        SetResponse("Sorry, we couldn't generate your essay outline. Please try again.")
+        SetResponse({
+          topic: topic,
+          name: name,
+          data: "Sorry, we couldn't generate your study notes. Please try again."
+        })
       }
 
     } catch (error) {
       console.log(error);
 
-      SetResponse("Sorry, we couldn't generate your essay outline. Please try again.")
+      SetResponse({
+        topic: topic,
+        name: name,
+        data: "Sorry, we couldn't generate your study notes. Please try again."
+      })
 
     }
 
@@ -80,12 +92,12 @@ export default function EssayOutline() {
         bg-gray-800 shadow-lg rounded-2xl  py-9 mb-4  w-3/4 ml-auto mr-auto ">
 
           <form className="px-32" onSubmit={handleSubmit(handleOnSubmitForm)}>
-            
+
             <div className="mb-4 mt-4">
               <label className="block text-left text-gray-100  text-lg ml-2 mb-4" htmlFor="username">
                 Your name
               </label>
-              <input className="block  text-sm shadow appearance-none border rounded w-2/5 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="John" {...register("name")}/>
+              <input className="block  text-sm shadow appearance-none border rounded w-2/5 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="John" {...register("name")} />
               {errors.name && <p className="text-red-500 text-sm text-left mt-3">{errors!.name!.message + ""}</p>}
             </div>
             <div className="mb-4 mt-8">
@@ -95,20 +107,22 @@ export default function EssayOutline() {
               <ul className="text-left mb-4">
                 <li> - Create an outline for an essay about Nikola Tesla and his contributions to technology</li>
               </ul>
-              <input className="shadow text-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="prompt" type="text"  {...register("topic")}/>
-              {errors.topic && <p className="text-red-500 text-sm text-left mt-3"> {errors!.topic!.message + ""}</p>}
-            
+              <input className="shadow text-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="prompt" type="text"  {...register("topic")} />
+              {errors.topic?.message && <p className="text-red-500 text-sm text-left mt-3"> {errors!.topic?.message + ""}</p>}
+
             </div>
-            <button disabled={isSubmitting} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8" type="submit">
-              Generate
+            <button disabled={isSubmitting} className="disabled:bg-[#9c9dc5] bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8" type="submit">
+              {isSubmitting ? "Loading ..." : "Generate"}
             </button>
           </form>
-          {response && (
+          {response?.data && (
             <>
               <div className="bg-gray-900 py-3 px-4 mt-8 rounded-2xl w-4/5 mx-auto">
 
-                <p className="text-left text-gray-100 text-lg whitespace-pre-wrap">{response}</p>
-                <button disabled={isSendingtoCommunity} onClick={handleSendtoCommunity} className="bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">{ isSendingtoCommunity ? "Sending ..." : "Send the results to the Community"}</button>
+                <p className="text-left text-gray-100 text-lg whitespace-pre-wrap">{response.data}</p>
+                <button disabled={isSendingtoCommunity} onClick={handleSendtoCommunity} className="disabled:bg-[#9c9dc5] bg-[#6469ff] hover:bg-[#494dc0] text-gray-100 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8">
+                  {isSendingtoCommunity ? "Sending ..." : "Send the results to the Community"}
+                </button>
               </div>
             </>
           )}

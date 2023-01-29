@@ -35,7 +35,7 @@ export default function Home(props: HomeProps) {
           {props?.data.length > 0 && props.data.map((item) => (
             <div key={item.id} className='bg-gray-900   mt-8 rounded-2xl group pb-4 '>
               <div className='bg-gray-700 p-3 rounded-2xl'>
-                <h2 className='text-base text-gray-300 font-bold'>{item.prompt}</h2>
+                <h2 className='text-base text-gray-300 '>{item.prompt}</h2>
                 <p className='text-gray-300 p-2 rounded-md my-4 bg-[#7176ff] inline-block'>{item.category}</p>
                 <p className='text-[#b1b3f7]'>{item.userName}</p>
               </div>
